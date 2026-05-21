@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZSZ Biecz - Cyberpunk Landing Page</title>
+    <title>ZSZ Biecz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -182,6 +182,11 @@
             text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
         }
 
+        .cyber-btn-pink:hover {
+            box-shadow: 0 0 25px rgba(254, 83, 187, 0.6);
+            text-shadow: 0 0 8px rgba(254, 83, 187, 0.8);
+        }
+
         /* Scroll Reveal */
         .reveal {
             opacity: 0;
@@ -212,14 +217,20 @@
                 </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-6 mt-8">
+            <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mt-8 max-w-4xl">
                 <a href="https://zszbiecz.pl/" target="_blank" rel="noopener noreferrer" 
-                   class="cyber-btn font-cyber bg-transparent border-2 border-cyber-cyan text-cyber-cyan px-8 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-cyan hover:text-cyber-black flex items-center justify-center gap-2 group">
+                   class="cyber-btn font-cyber bg-transparent border-2 border-cyber-cyan text-cyber-cyan px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-cyan hover:text-cyber-black flex items-center justify-center gap-2 group text-sm md:text-base">
                     <span>Odwiedź naszą szkołę</span>
                     <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
                 </a>
+                
+                <a href="quiz.html" 
+                   class="cyber-btn cyber-btn-pink font-cyber bg-cyber-pink/10 border-2 border-cyber-pink text-cyber-pink px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-pink hover:text-cyber-black flex items-center justify-center gap-2 text-sm md:text-base shadow-[0_0_15px_rgba(254,83,187,0.3)] animate-pulse">
+                    <span>⚡ POZNAJ SWÓJ ZAWÓD ⚡</span>
+                </a>
+
                 <a href="#kierunki" 
-                   class="cyber-btn cyber-btn-alt font-cyber bg-cyber-green/10 border-2 border-cyber-green text-cyber-green px-8 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-green hover:text-cyber-black flex items-center justify-center">
+                   class="cyber-btn cyber-btn-alt font-cyber bg-cyber-green/10 border-2 border-cyber-green text-cyber-green px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-green hover:text-cyber-black flex items-center justify-center text-sm md:text-base">
                     Kierunki
                 </a>
             </div>
@@ -382,7 +393,7 @@
     <footer class="py-8 border-t border-cyber-cyan/20 bg-[#020202] text-center">
         <p class="text-gray-600 font-cyber text-sm">
             &copy; 2026 Zespół Szkół Zawodowych im. Świętej Jadwigi Królowej w Bieczu. Wszelkie prawa zastrzeżone.<br>
-            <span class="text-cyber-cyan/50 text-xs">System Online // Status: Opeartional</span>
+            <span class="text-cyber-cyan/50 text-xs">System Online // Status: Operational</span>
         </p>
     </footer>
 
@@ -391,7 +402,7 @@
         // 1. MATRIX DIGITAL RAIN (Zoptymalizowany)
         // ==========================================
         const canvas = document.getElementById('matrix-bg');
-        const ctx = canvas.getContext('2d', { alpha: false }); // Optymalizacja
+        const ctx = canvas.getContext('2d', { alpha: false });
         
         let width, height, columns, drops;
         const letters = ['Z', 'S', 'Z', 'B', 'I', 'E', 'C', 'Z'];
@@ -403,14 +414,13 @@
             columns = Math.floor(width / fontSize) + 1;
             drops = [];
             for (let x = 0; x < columns; x++) {
-                drops[x] = Math.random() * -100; // Rozpoczęcie animacji poza ekranem dla płynności
+                drops[x] = Math.random() * -100;
             }
         }
 
         window.addEventListener('resize', initMatrix);
         initMatrix();
 
-        // Kontrola FPS przez requestAnimationFrame
         let lastTime = 0;
         const fps = 35; 
         const interval = 1000 / fps;
@@ -421,7 +431,6 @@
             const deltaTime = time - lastTime;
             
             if (deltaTime > interval) {
-                // Półprzezroczyste czarne tło dla efektu smugi (Trail effect)
                 ctx.fillStyle = 'rgba(5, 5, 5, 0.15)';
                 ctx.fillRect(0, 0, width, height);
                 
@@ -431,26 +440,22 @@
                 for (let i = 0; i < drops.length; i++) {
                     const char = letters[Math.floor(Math.random() * letters.length)];
                     
-                    // Szansa na cyan / zielony
                     if (Math.random() > 0.8) {
-                        ctx.fillStyle = '#08f7fe'; // Cyan
+                        ctx.fillStyle = '#08f7fe';
                         ctx.shadowBlur = 10;
                         ctx.shadowColor = '#08f7fe';
                     } else {
-                        ctx.fillStyle = '#00ff41'; // Green
+                        ctx.fillStyle = '#00ff41';
                         ctx.shadowBlur = 5;
                         ctx.shadowColor = '#00ff41';
                     }
                     
-                    // Rysowanie znaku
                     const x = i * fontSize + (fontSize/2);
                     const y = drops[i] * fontSize;
                     ctx.fillText(char, x, y);
                     
-                    // Resetowanie cienia dla wydajności kolejnych operacji
                     ctx.shadowBlur = 0;
 
-                    // Resetowanie kropli po wypadnięciu za ekran
                     if (y > height && Math.random() > 0.975) {
                         drops[i] = 0;
                     }
@@ -474,7 +479,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('active');
-                    observer.unobserve(entry.target); // Animacja tylko raz
+                    observer.unobserve(entry.target);
                 }
             });
         }, revealOptions);
@@ -485,5 +490,3 @@
     </script>
 </body>
 </html>
-
-```

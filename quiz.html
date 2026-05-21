@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutureMatch v1.0 - Dobierz swój zawód</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cyber: ['Orbitron', 'sans-serif'],
+                        body: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            black: '#050505',
+                            gray: '#111316',
+                            green: '#00ff41',
+                            cyan: '#08f7fe',
+                            pink: '#fe53bb'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #e2e8f0;
+            background-image: linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(17, 19, 22, 0.75);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(8, 247, 254, 0.2);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(8, 247, 254, 0.1);
+            touch-action: none;
+            cursor: grab;
+            transition: transform 0s ease, opacity 0s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .glass-card:active {
+            cursor: grabbing;
+        }
+
+        .card-reset {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            transform: translate(0, 0) rotate(0deg) scale(1) !important;
+            opacity: 1 !important;
+            border-color: rgba(8, 247, 254, 0.2) !important;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(8, 247, 254, 0.1) !important;
+        }
+
+        .card-enter {
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            animation: cardIn 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cardIn {
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: 99;
+            pointer-events: none;
+        }
+
+        /* STRUKTURA I STYLIZACJA POD DRUK CZARNO-BIAŁY */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                background-image: none !important;
+            }
+            header, footer, .scanlines, #welcome-view, #quiz-view, #loader-view, #result-view, .no-print {
+                display: none !important;
+            }
+            #certificate-view {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #certificate-print-area {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 4px double #000000 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                padding: 40px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            #certificate-print-area *, .print-black {
+                color: #000000 !important;
+                text-shadow: none !important;
+                background: transparent !important;
+            }
+            .print-border-black {
+                border-color: #000000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-body min-h-screen flex flex-col justify-between overflow-x-hidden relative selection:bg-cyber-pink selection:text-white">
+    <div class="scanlines"></div>
+
+    <header class="p-6 border-b border-cyber-cyan/20 bg-[#0a0c0f]/80 backdrop-blur-md relative z-10 no-print">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="w-3 h-3 rounded-full bg-cyber-pink animate-ping"></span>
+                <h1 class="font-cyber font-bold tracking-widest text-cyber-cyan text-xl">FUTURE_MATCH v1.0</h1>
+            </div>
+            <a href="stronaszkoly.html" class="font-cyber text-sm text-gray-400 hover:text-cyber-green transition-colors border border-gray-700 hover:border-cyber-green px-3 py-1.5 rounded">
+                &lt; POWRÓT
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4 relative z-10 my-8">
+        <div class="w-full max-w-md md:max-w-xl transition-all">
+            
+            <div id="welcome-view" class="glass-card rounded-2xl p-8 space-y-6 border-cyber-cyan/40 shadow-[0_0_25px_rgba(8,247,254,0.1)]">
+                <div class="text-center space-y-2">
+                    <h2 class="font-cyber text-2xl font-black text-white tracking-wider">IDENTYFIKACJA KANDYDATA</h2>
+                    <p class="text-xs text-cyber-cyan font-cyber tracking-tight">ZALOGUJ SIĘ DO REKRUTACYJNEGO RDZENIA MATRIXA</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-cyber text-xs text-gray-400 mb-1.5 tracking-wide">TWOJE IMIĘ / KRYPTONIM:</label>
+                        <input type="text" id="user-name" placeholder="Wprowadź imię..." 
+                               class="w-full bg-cyber-gray border border-cyber-cyan/40 rounded px-4 py-3 text-white font-cyber focus:outline-none focus:border-cyber-pink transition-colors text-sm tracking-wide">
+                    </div>
+                    
+                    <div>
+                        <label class="block font-cyber text-xs text-gray-400 mb-1.5 tracking-wide">DEKLAROWANY ZAWÓD MARZEŃ:</label>
+                        <select id="dream-profession" 
+                                class="w-full bg-cyber-gray border border-cyber-cyan/40 rounded px-4 py-3 text-white font-body font-semibold focus:outline-none focus:border-cyber-pink transition-colors text-sm tracking-wide">
+                            </select>
+                    </div>
+                </div>
+
+                <button onclick="startQuizFlow()" 
+                        class="w-full bg-cyber-cyan text-black font-cyber font-bold py-4 rounded hover:bg-white transition-all tracking-widest uppercase text-sm shadow-[0_0_15px_rgba(8,247,254,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] transform active:scale-95">
+                    URUCHOM ALGORITHMIC_PROFILER_v2.0
+                </button>
+            </div>
+            
+            <div id="quiz-view" class="hidden space-y-6">
+                <div class="flex items-center justify-between font-cyber text-xs text-gray-400 px-1">
+                    <span>STATUS: MATCHING_IN_PROGRESS...</span>
+                    <span id="progress-text" class="text-cyber-cyan font-bold">1 / 18</span>
+                </div>
+                <div class="w-full h-1.5 bg-cyber-gray border border-cyber-cyan/20 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-pink transition-all duration-300" style="width: 5%"></div>
+                </div>
+
+                <div id="tinder-card" class="glass-card rounded-2xl p-8 min-h-[350px] flex flex-col justify-between relative overflow-hidden transition-all duration-100 card-enter shadow-[0_0_25px_rgba(8,247,254,0.05)]">
+                    <div class="absolute top-0 right-0 bg-cyber-cyan/10 border-b border-l border-cyber-cyan/30 text-[10px] text-cyber-cyan px-2 py-0.5 font-cyber select-none pointer-events-none">PROP_SCAN_2026</div>
+                    <div class="absolute bottom-2 left-4 text-[9px] text-gray-600 font-cyber tracking-tight select-none pointer-events-none">System: ZSZ_BIECZ // AI_CORE</div>
+                    
+                    <div class="my-auto pt-4 text-center select-none pointer-events-none">
+                        <div class="text-cyber-pink font-cyber text-3xl mb-4 opacity-50 font-black">?</div>
+                        <p id="question-text" class="text-2xl md:text-3xl font-semibold text-white tracking-wide leading-relaxed">
+                            Ładowanie bazy pytań...
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-6 items-center pt-2">
+                    <button onclick="handleButtonAnswer(false)" class="w-16 h-16 rounded-full bg-cyber-gray border-2 border-cyber-pink text-cyber-pink flex items-center justify-center text-2xl font-bold shadow-[0_0_15px_rgba(254,83,187,0.1)] hover:bg-cyber-pink hover:text-black hover:shadow-[0_0_25px_#fe53bb] transition-all transform active:scale-95 group">
+                        ✕
+                    </button>
+                    <span class="text-xs text-gray-500 font-cyber hidden md:inline tracking-wider">Użyj myszki, dotyku lub [←] [→]</span>
+                    <button onclick="handleButtonAnswer(true)" class="w-16 h-16 rounded-full bg-cyber-gray border-2 border-cyber-green text-cyber-green flex items-center justify-center text-2xl font-bold shadow-[0_0_15px_rgba(0,255,65,0.1)] hover:bg-cyber-green hover:text-black hover:shadow-[0_0_25px_#00ff41] transition-all transform active:scale-95 group">
+                        ♥
+                    </button>
+                </div>
+            </div>
+
+            <div id="loader-view" class="hidden glass-card rounded-2xl p-8 text-center space-y-6 border-cyber-pink/40 shadow-[0_0_30px_rgba(254,83,187,0.15)]">
+                <div class="font-cyber text-cyber-pink text-lg animate-pulse tracking-widest font-bold">ANALIZOWANIE BIOMETRII MÓZGOWEJ...</div>
+                <div class="w-full bg-cyber-gray h-4 border border-cyber-pink/30 rounded p-0.5 overflow-hidden">
+                    <div id="loading-fill" class="h-full bg-cyber-pink transition-all duration-1000 ease-out" style="width: 0%"></div>
+                </div>
+                <p id="loader-logs" class="font-cyber text-xs text-gray-500 h-8">Inicjalizacja algorytmu...</p>
+            </div>
+
+            <div id="result-view" class="hidden glass-card rounded-2xl p-8 relative overflow-hidden border-2 border-cyber-green shadow-[0_0_40px_rgba(0,255,65,0.2)] animate-pulse">
+                <div class="absolute top-0 left-0 bg-cyber-green text-black font-cyber text-xs px-3 py-1 font-bold tracking-widest shadow-[0_0_10px_#00ff41]">
+                    MATCH FOUND!
+                </div>
+                
+                <div class="text-center space-y-6 mt-4">
+                    <h2 id="result-title" class="font-cyber text-xl md:text-2xl font-black text-cyber-pink tracking-tight uppercase px-2 leading-snug">
+                        DIAGNOZA ZAKOŃCZONA
+                    </h2>
+                    
+                    <div class="p-6 bg-cyber-green/5 border border-cyber-green/30 rounded-xl relative">
+                        <div class="text-xs text-cyber-green font-cyber uppercase tracking-wider mb-1">Twoje ostateczne przeznaczenie zawodowe:</div>
+                        <div id="result-profession" class="font-cyber text-2xl md:text-3xl font-black text-white text-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+                            Generowanie...
+                        </div>
+                    </div>
+
+                    <p id="result-desc" class="text-gray-300 text-base leading-relaxed tracking-wide text-justify">
+                        Trwa mapowanie neuronowe...
+                    </p>
+
+                    <div class="pt-4 border-t border-gray-800 flex flex-col gap-3">
+                        <button onclick="generateAndShowCertificate()" class="w-full bg-cyber-pink text-black font-cyber font-bold py-3.5 rounded hover:bg-white hover:text-black transition-colors tracking-wider uppercase text-sm shadow-[0_0_15px_rgba(254,83,187,0.4)] flex items-center justify-center gap-2">
+                            <span>📜 GENERUJ OFICJALNY CERTYFIKAT</span>
+                        </button>
+                        <a href="https://zszbiecz.pl/" target="_blank" class="w-full bg-cyber-green text-black font-cyber font-bold py-2.5 rounded hover:bg-white transition-colors tracking-wider uppercase text-xs shadow-[0_0_10px_rgba(0,255,65,0.2)]">
+                            Odwiedź Portal Szkoły ZSZ Biecz
+                        </a>
+                        <button onclick="restartQuiz()" class="w-full bg-transparent border border-gray-600 text-gray-400 font-cyber text-[10px] py-1.5 rounded hover:text-white hover:border-white transition-colors">
+                            Zresetuj system i spróbuj ponownie
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="certificate-view" class="hidden w-full max-w-2xl mx-auto space-y-6 my-4">
+                <div class="no-print flex justify-between items-center font-cyber text-xs bg-cyber-gray p-4 border border-cyber-pink/30 rounded-lg">
+                    <span class="text-cyber-pink animate-pulse">⚙️ PODGLĄD SYSTEMOWEGO DOWODU PRZEZNACZENIA v2.0</span>
+                    <span class="text-gray-500">FORMAT: MONOCHROME OPTIMIZED (A4)</span>
+                </div>
+
+                <div id="certificate-print-area" class="bg-cyber-gray/90 border-4 border-dashed border-cyber-cyan p-8 rounded-2xl shadow-[0_0_50px_rgba(8,247,254,0.15)] relative text-center">
+                    
+                    <div class="border-2 print-border-black border-cyber-cyan/30 p-6 space-y-8">
+                        <div>
+                            <div class="font-cyber text-[11px] text-cyber-cyan tracking-widest print-black font-bold uppercase">Rzeczpospolita Cybernetyczna // Pion Edukacji</div>
+                            <h2 class="font-cyber text-xl md:text-3xl font-black text-white tracking-tighter uppercase mt-2 print-black">
+                                CERTYFIKAT DOJRZAŁOŚCI CYBERNETYCZNEJ
+                            </h2>
+                            <div class="h-0.5 w-32 bg-cyber-pink mx-auto mt-3 print-border-black" style="background-color: #fe53bb;"></div>
+                        </div>
+
+                        <div class="space-y-2 text-center">
+                            <p class="text-sm font-cyber text-gray-400 uppercase tracking-widest print-black">Niniejszym zaświadcza się z pełną mocą algorytmu, iż:</p>
+                            <p id="cert-name" class="font-cyber text-3xl md:text-4xl font-black text-cyber-pink print-black tracking-wide py-2 uppercase">
+                                JAN KOWALSKI
+                            </p>
+                        </div>
+
+                        <div class="max-w-xl mx-auto space-y-4 text-base tracking-wide text-gray-300 font-medium">
+                            <p class="print-black">
+                                Poddał(a) się weryfikacji biometrycznej i behawioralnej w centralnym systemie profilowania <strong class="text-white print-black font-bold">ZSZ Biecz</strong>.
+                            </p>
+                            <p id="cert-intent-text" class="print-black">
+                                Kandydat(ka) usilnie próbował(a) oszukać matrycę, deklarując intencję kształcenia w zawodzie:<br>
+                                <strong id="cert-dream" class="text-cyber-cyan print-black font-bold uppercase text-lg">TECHNIK HOTELARSTWA</strong>
+                            </p>
+                            <div class="bg-black/40 border border-cyber-green/30 p-4 rounded-xl print-border-black my-4">
+                                <p id="cert-verdict-title" class="text-xs font-cyber text-cyber-green uppercase tracking-widest mb-1 print-black">System odrzucił błąd ludzki. Ostateczny Werdykt Maszyny:</p>
+                                <p id="cert-final" class="font-cyber text-2xl md:text-3xl font-black text-white print-black tracking-tight uppercase">
+                                    TECHNIK INFORMATYK
+                                </p>
+                            </div>
+                            <div class="text-left text-sm text-gray-400 italic font-normal px-4 border-l-2 border-cyber-pink print-border-black mt-4">
+                                <span class="font-cyber text-xs block font-bold not-italic tracking-wider text-cyber-pink print-black mb-1">UZASADNIENIE RDZENIA AI:</span>
+                                <p id="cert-desc" class="print-black">Opis...</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-6 grid grid-cols-2 gap-4 text-[10px] font-cyber text-gray-500 uppercase tracking-wider border-t border-gray-800 print-border-black">
+                            <div class="text-left print-black">
+                                <p>KOD SYSTEMOWY: ZSZ-BIECZ-CORE-2026</p>
+                                <p id="cert-status-text">STATUS: ZWERYFIKOWANO NEGATYWNIE KANDYDATURĘ INNĄ NIŻ IT</p>
+                            </div>
+                            <div class="text-right print-black flex flex-col justify-end items-end">
+                                <div class="w-24 h-1 bg-gray-700 mb-1 print-border-black" style="background-color: #000000; height: 1px;"></div>
+                                <p>Pieczęć Cyfrowa AI_CORE v2.0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-print flex flex-col sm:flex-row gap-3 pt-2">
+                    <button onclick="triggerPrint()" class="flex-grow bg-cyber-green text-black font-cyber font-bold py-4 rounded hover:bg-white transition-all tracking-wider uppercase text-sm shadow-[0_0_20px_rgba(0,255,65,0.3)] flex items-center justify-center gap-2">
+                        <span>🖨️ DRUKUJ CERTYFIKAT (Optymalizacja Czarno-Biała)</span>
+                    </button>
+                    <button onclick="backToResult()" class="bg-cyber-gray border border-gray-700 text-gray-400 font-cyber py-4 px-6 rounded hover:text-white hover:border-white transition-colors text-sm uppercase">
+                        Powrót do wyniku
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="p-4 border-t border-cyber-cyan/10 bg-[#020202]/50 text-center font-cyber text-[11px] text-gray-600 relative z-10 no-print">
+        PROFILER v1.0 // Wyprodukowano na silniku Matrix-ZSZ-Biecz
+    </footer>
+
+    <script>
+        const schoolProfessions = [
+            "Technik Informatyk",
+            "Technik Cyberbezpieczeństwa",
+            "Technik Hotelarstwa",
+            "Technik Żywienia i Usług Gastronomicznych",
+            "Technik Pojazdów Samochodowych",
+            "Mechanik Pojazdów Samochodowych",
+            "Kucharz",
+            "Cukiernik",
+            "Fryzjer",
+            "Sprzedawca",
+            "Magazynier Logistyk",
+            "Monter Zabudowy i Robót Wykończeniowych w Budownictwie"
+        ];
+
+        const questions = [
+            "Wolę kawę z potrójnym espresso niż klasyczną herbatę.",
+            "Lubię rozbierać rzeczy na części (i zazwyczaj zostają mi zbędne śrubki).",
+            "Dobrze czuję się, gdy gotuję (nawet jeśli to tylko zupka chińska).",
+            "Wolę pracę w nocy, światło słoneczne delikatnie parzy moją skórę.",
+            "Ekran monitora to moje ulubione i główne źródło światła w pokoju.",
+            "Gdy widzę popsuty sprzęt mechaniczny, mam ochotę go dotknąć i popsuć bardziej.",
+            "Zapach nowej elektroniki lub benzyny o poranku to dla mnie prawdziwe perfumy.",
+            "Zdecydowanie wolę rozmawiać z kotem lub komputerem niż z żywymi ludźmi.",
+            "Słowo 'ERROR' lub awaria sieci wywołuje u mnie nagły skok adrenaliny.",
+            "Moja idealna fryzura to taka, która nie wymaga użycia grzebienia ani wysiłku.",
+            "Uwielbiam organizować absolutny chaos w idealnie poukładane struktury.",
+            "Przeraża mnie myśl o braku dostępu do Wi-Fi na czas dłuższy niż 12 minut.",
+            "Cukier i kofeina stanowią solidną podstawę mojej piramidy żywieniowej.",
+            "Piszę na klawiaturze z zawrotną prędkością, zwłaszcza gdy udaję, że pracuję.",
+            "Czarna, za duża bluza z kapturem to moja oficjalna odzież wyjściowa i galowa.",
+            "Kiedy domowy router przestaje nagle migać, czuję głęboki niepokój egzystencjalny.",
+            "Zawsze bezwzględnie akceptuję regulaminy i warunki umów bez czytania ani jednego słowa.",
+            "Uważam, że hasło '123456' lub 'admin1' to absolutny majstersztyk sztuki kryptografii."
+        ];
+
+        // Nowa, elastyczna struktura profili wynikowych IT i Cyberbezpieczeństwa
+        const profiles = {
+            "Technik Informatyk": {
+                title: "DIAGNOZA: ZDECYDOWANIE NADAJESZ SIĘ NA INFORMATYKA!",
+                profession: "Technik Informatyk",
+                desc: "Algorytm przetworzył dane wejściowe. Twoja podświadomość bezustannie generuje potężne sygnały binarne. Twój mózg dąży do optymalizacji kodu, konfiguracji sieci strukturalnych oraz zarządzania systemami operacyjnymi. Twoim prawdziwym przeznaczeniem są serwery i cyfrowa infrastruktura w ZSZ Biecz!"
+            },
+            "Technik Cyberbezpieczeństwa": {
+                title: "DEFINITYWNIE CYBERBEZPIECZEŃSTWO TO TWOJA UKRYTA PASJA!",
+                profession: "Technik Cyberbezpieczeństwa",
+                desc: "System wykrył w Twoich odpowiedziach potężny profil defensywny. Awersja do zagrożeń zewnętrznych, analityczne podejście do anomalii sieciowych oraz naturalny instynkt kryptograficzny jednoznacznie pozycjonują Cię jako strażnika cyberprzestrzeni. Jesteś tarczą sieciową, której potrzebuje nowoczesny świat!"
+            }
+        };
+
+        let userName = "";
+        let userDreamProfession = "";
+        let selectedResult = null;
+        let currentIndex = 0;
+        let userAnswers = []; // Tablica przechowująca faktyczne odpowiedzi true/false kandydata
+        
+        const cardEl = document.getElementById('tinder-card');
+        const qTextEl = document.getElementById('question-text');
+        const progressTextEl = document.getElementById('progress-text');
+        const progressBarEl = document.getElementById('progress-bar');
+        const width = window.innerWidth;
+
+        function populateProfessions() {
+            const selectEl = document.getElementById('dream-profession');
+            selectEl.innerHTML = "";
+            schoolProfessions.forEach(prof => {
+                const option = document.createElement('option');
+                option.value = prof;
+                option.innerText = prof;
+                selectEl.appendChild(option);
+            });
+        }
+
+        function startQuizFlow() {
+            const nameInput = document.getElementById('user-name').value.trim();
+            if (!nameInput) {
+                alert("Autentykacja nieudana! Podaj swoje imię lub kryptonim, aby uzyskać dostęp do bazy.");
+                return;
+            }
+            userName = nameInput;
+            userDreamProfession = document.getElementById('dream-profession').value;
+
+            document.getElementById('welcome-view').classList.add('hidden');
+            document.getElementById('quiz-view').classList.remove('hidden');
+            initQuiz();
+        }
+
+        let startX = 0, startY = 0, currentX = 0, currentY = 0;
+        let isDragging = false;
+        const swipeThreshold = 120;
+
+        function initSwipeEvents() {
+            cardEl.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', dragMove);
+            document.addEventListener('mouseup', endDrag);
+
+            cardEl.addEventListener('touchstart', startDrag);
+            document.addEventListener('touchmove', dragMove);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function startDrag(e) {
+            if (document.getElementById('quiz-view').classList.contains('hidden')) return;
+            isDragging = true;
+            cardEl.classList.remove('card-reset');
+            cardEl.style.transition = 'none';
+
+            const event = e.touches ? e.touches[0] : e;
+            startX = event.clientX;
+            startY = event.clientY;
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+
+            const event = e.touches ? e.touches[0] : e;
+            currentX = event.clientX;
+            currentY = event.clientY;
+
+            const offsetX = currentX - startX;
+            const offsetY = currentY - startY;
+            const rotation = offsetX / 15; 
+            const scale = 1 - Math.min(Math.abs(offsetX) / width, 0.1);
+            const opacity = 1 - Math.min(Math.abs(offsetX) / width, 0.4);
+
+            cardEl.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(${scale})`;
+            cardEl.style.opacity = opacity;
+            
+            const intensity = Math.abs(offsetX) / swipeThreshold;
+            if (offsetX > 0) {
+                cardEl.style.borderColor = `rgba(0, 255, 65, ${0.2 + intensity * 0.4})`;
+                cardEl.style.boxShadow = `0 0 ${25 + intensity * 15}px rgba(0, 255, 65, ${intensity * 0.4}), inset 0 0 10px rgba(8, 247, 254, 0.1)`;
+            } else if (offsetX < 0) {
+                cardEl.style.borderColor = `rgba(254, 83, 187, ${0.2 + intensity * 0.4})`;
+                cardEl.style.boxShadow = `0 0 ${25 + intensity * 15}px rgba(254, 83, 187, ${intensity * 0.4}), inset 0 0 10px rgba(8, 247, 254, 0.1)`;
+            }
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const offsetX = currentX - startX;
+
+            if (offsetX > swipeThreshold) {
+                animateOutAndNext(true);
+            } else if (offsetX < -swipeThreshold) {
+                animateOutAndNext(false);
+            } else {
+                cardEl.classList.add('card-reset');
+            }
+            startX = startY = currentX = currentY = 0;
+        }
+
+        function animateOutAndNext(isYes) {
+            cardEl.style.transition = 'all 0.4s ease-out';
+            if (isYes) {
+                cardEl.style.transform = 'translate(180%, 20%) rotate(35deg)';
+                cardEl.style.opacity = '0';
+            } else {
+                cardEl.style.transform = 'translate(-180%, 20%) rotate(-35deg)';
+                cardEl.style.opacity = '0';
+            }
+
+            // Zapamiętanie decyzji użytkownika
+            userAnswers.push(isYes);
+
+            currentIndex++;
+            setTimeout(() => {
+                showQuestion();
+            }, 300);
+        }
+
+        function handleButtonAnswer(isYes) {
+            animateOutAndNext(isYes);
+        }
+
+        function initQuiz() {
+            currentIndex = 0;
+            userAnswers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentIndex < questions.length) {
+                cardEl.classList.remove('card-reset');
+                cardEl.style.transition = 'none';
+                cardEl.style.transform = 'translate(0, 20px) scale(0.9)';
+                cardEl.style.opacity = '0';
+                cardEl.style.borderColor = 'rgba(8, 247, 254, 0.2)';
+                cardEl.style.boxShadow = '0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(8, 247, 254, 0.1)';
+                
+                cardEl.className = "glass-card rounded-2xl p-8 min-h-[350px] flex flex-col justify-between relative overflow-hidden card-enter shadow-[0_0_25px_rgba(8,247,254,0.05)]";
+                
+                qTextEl.innerText = questions[currentIndex];
+                progressTextEl.innerText = `${currentIndex + 1} / ${questions.length}`;
+                
+                const percent = ((currentIndex + 1) / questions.length) * 100;
+                progressBarEl.style.width = `${percent}%`;
+            } else {
+                startDataAnalysis();
+            }
+        }
+
+        function startDataAnalysis() {
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('loader-view').classList.remove('hidden');
+            
+            const fill = document.getElementById('loading-fill');
+            const logs = document.getElementById('loader-logs');
+            
+            fill.style.width = '100%';
+            
+            // Sprawdzenie, czy użytkownik od początku wybrał zawód powiązany z IT/Cyber
+            const selectedITOrCyber = (userDreamProfession === "Technik Informatyk" || userDreamProfession === "Technik Cyberbezpieczeństwa");
+            
+            const logPhases = [
+                `Skonfigurowano profil rekruta: ${userName}...`,
+                selectedITOrCyber ? `Weryfikacja wysokiej zgodności profilu: ${userDreamProfession}...` : `Ignorowanie błędnego wyboru ludzkiego: ${userDreamProfession}...`,
+                "Filtrowanie kofeiny i poziomów cukru w rdzeniu mózgowym...",
+                selectedITOrCyber ? "Potwierdzanie optymalnego poziomu cyfrowych synaps..." : "Wymuszanie jedynego, matematycznie słusznego werdyktu...",
+                "Kompilacja certyfikatu przeznaczenia ukończona!"
+            ];
+
+            logPhases.forEach((phase, index) => {
+                setTimeout(() => {
+                    logs.innerText = phase;
+                }, index * 600);
+            });
+
+            setTimeout(() => {
+                showRiggedResult();
+            }, 3200);
+        }
+
+        function showRiggedResult() {
+            document.getElementById('loader-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            
+            let finalProfession = "";
+
+            // LOGIKA PRZYDZIELANIA WYNIKU
+            if (userDreamProfession === "Technik Informatyk" || userDreamProfession === "Technik Cyberbezpieczeństwa") {
+                // Jeśli użytkownik sam chciał iść na IT lub Cyber, system szanuje jego trafną decyzję
+                finalProfession = userDreamProfession;
+            } else {
+                // W innym wypadku algorytm analizuje odpowiedzi i decyduje, co bardziej pasuje
+                let infoPoints = 0;
+                let cyberPoints = 0;
+
+                // Indeksy pytań sugerujące profil klasycznego Informatyka (np. rozbieranie sprzętu, monitor, pisanie)
+                if (userAnswers[1]) infoPoints++;
+                if (userAnswers[4]) infoPoints++;
+                if (userAnswers[13]) infoPoints++;
+
+                // Indeksy pytań sugerujące profil Cyberbezpieczeństwa (np. reakcja na błąd sieci, router, podejście do haseł/kryptografii)
+                if (userAnswers[8]) cyberPoints++;
+                if (userAnswers[15]) cyberPoints++;
+                if (userAnswers[17]) cyberPoints++;
+
+                if (cyberPoints >= infoPoints) {
+                    finalProfession = "Technik Cyberbezpieczeństwa";
+                } else {
+                    finalProfession = "Technik Informatyk";
+                }
+            }
+            
+            selectedResult = profiles[finalProfession];
+            
+            document.getElementById('result-title').innerText = selectedResult.title;
+            document.getElementById('result-profession').innerText = selectedResult.profession;
+            document.getElementById('result-desc').innerText = selectedResult.desc;
+        }
+
+        function generateAndShowCertificate() {
+            document.getElementById('result-view').classList.add('hidden');
+            document.getElementById('certificate-view').classList.remove('hidden');
+
+            document.getElementById('cert-name').innerText = userName;
+            document.getElementById('cert-final').innerText = selectedResult.profession;
+            document.getElementById('cert-desc').innerText = selectedResult.desc;
+
+            const intentTextEl = document.getElementById('cert-intent-text');
+            const verdictTitleEl = document.getElementById('cert-verdict-title');
+            const statusTextEl = document.getElementById('cert-status-text');
+
+            // Dynamiczne dostosowanie fraz dyplomu w zależności od wyjściowych intencji kandydata
+            if (userDreamProfession === selectedResult.profession) {
+                intentTextEl.innerHTML = `Kandydat(ka) wykazał(a) pełną synchronizację z matrycą, deklarując trafną intencję kształcenia w zawodzie:<br><strong id="cert-dream" class="text-cyber-cyan print-black font-bold uppercase text-lg">${userDreamProfession}</strong>`;
+                verdictTitleEl.innerText = "System potwierdził brak błędów ludzkich. Ostateczny Werdykt Maszyny:";
+                statusTextEl.innerText = "STATUS: ZWERYFIKOWANO POZYTYWNIE PROFIL KANDYDATA";
+            } else {
+                intentTextEl.innerHTML = `Kandydat(ka) usilnie próbował(a) oszukać matrycę, deklarując intencję kształcenia w zawodzie:<br><strong id="cert-dream" class="text-cyber-cyan print-black font-bold uppercase text-lg">${userDreamProfession}</strong>`;
+                verdictTitleEl.innerText = "System odrzucił błąd ludzki. Ostateczny Werdykt Maszyny:";
+                statusTextEl.innerText = "STATUS: ZWERYFIKOWANO NEGATYWNIE KANDYDATURĘ INNĄ NIŻ WYBRANE IT";
+            }
+        }
+
+        function backToResult() {
+            document.getElementById('certificate-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+        }
+
+        function triggerPrint() {
+            window.print();
+        }
+
+        function restartQuiz() {
+            document.getElementById('user-name').value = "";
+            userAnswers = [];
+            document.getElementById('result-view').classList.add('hidden');
+            document.getElementById('certificate-view').classList.add('hidden');
+            document.getElementById('welcome-view').classList.remove('hidden');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('quiz-view').classList.contains('hidden') || isDragging) return;
+            if (e.key === 'ArrowLeft') {
+                handleButtonAnswer(false);
+            } else if (e.key === 'ArrowRight') {
+                handleButtonAnswer(true);
+            }
+        });
+
+        window.onload = function() {
+            populateProfessions();
+            initSwipeEvents();
+        };
+    </script>
+</body>
+</html>
