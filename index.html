@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZSZ Biecz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cyber: ['Orbitron', 'sans-serif'],
+                        body: ['Rajdhani', 'sans-serif'],
+                    },
+                    colors: {
+                        cyber: {
+                            black: '#050505',
+                            gray: '#111316',
+                            green: '#00ff41',
+                            cyan: '#08f7fe',
+                            pink: '#fe53bb'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Matrix Canvas */
+        #matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* Glitch Effect */
+        .glitch-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .glitch-text {
+            font-size: clamp(4rem, 10vw, 8rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            position: relative;
+            text-shadow: 0 0 20px rgba(8, 247, 254, 0.5);
+            letter-spacing: 4px;
+        }
+
+        .glitch-text::before, .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+
+        .glitch-text::before {
+            left: 3px;
+            text-shadow: -2px 0 #fe53bb;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -3px;
+            text-shadow: -2px 0 #00ff41;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(13px, 9999px, 86px, 0); }
+            5% { clip: rect(74px, 9999px, 12px, 0); }
+            10% { clip: rect(32px, 9999px, 98px, 0); }
+            15% { clip: rect(8px, 9999px, 45px, 0); }
+            20% { clip: rect(95px, 9999px, 23px, 0); }
+            25% { clip: rect(54px, 9999px, 67px, 0); }
+            30% { clip: rect(12px, 9999px, 89px, 0); }
+            35% { clip: rect(76px, 9999px, 34px, 0); }
+            40% { clip: rect(43px, 9999px, 78px, 0); }
+            45% { clip: rect(87px, 9999px, 15px, 0); }
+            50% { clip: rect(21px, 9999px, 56px, 0); }
+            55% { clip: rect(65px, 9999px, 90px, 0); }
+            60% { clip: rect(9px, 9999px, 41px, 0); }
+            65% { clip: rect(58px, 9999px, 27px, 0); }
+            70% { clip: rect(39px, 9999px, 82px, 0); }
+            75% { clip: rect(84px, 9999px, 19px, 0); }
+            80% { clip: rect(25px, 9999px, 73px, 0); }
+            85% { clip: rect(69px, 9999px, 38px, 0); }
+            90% { clip: rect(16px, 9999px, 94px, 0); }
+            95% { clip: rect(91px, 9999px, 52px, 0); }
+            100% { clip: rect(48px, 9999px, 11px, 0); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 21px, 0); }
+            5% { clip: rect(19px, 9999px, 83px, 0); }
+            10% { clip: rect(78px, 9999px, 45px, 0); }
+            15% { clip: rect(32px, 9999px, 96px, 0); }
+            20% { clip: rect(89px, 9999px, 14px, 0); }
+            25% { clip: rect(41px, 9999px, 68px, 0); }
+            30% { clip: rect(97px, 9999px, 25px, 0); }
+            35% { clip: rect(24px, 9999px, 79px, 0); }
+            40% { clip: rect(63px, 9999px, 31px, 0); }
+            45% { clip: rect(11px, 9999px, 88px, 0); }
+            50% { clip: rect(86px, 9999px, 42px, 0); }
+            55% { clip: rect(37px, 9999px, 91px, 0); }
+            60% { clip: rect(94px, 9999px, 18px, 0); }
+            65% { clip: rect(52px, 9999px, 74px, 0); }
+            70% { clip: rect(15px, 9999px, 59px, 0); }
+            75% { clip: rect(72px, 9999px, 26px, 0); }
+            80% { clip: rect(28px, 9999px, 85px, 0); }
+            85% { clip: rect(81px, 9999px, 39px, 0); }
+            90% { clip: rect(46px, 9999px, 93px, 0); }
+            95% { clip: rect(98px, 9999px, 12px, 0); }
+            100% { clip: rect(23px, 9999px, 67px, 0); }
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(17, 19, 22, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(8, 247, 254, 0.15);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(8, 247, 254, 0.6);
+            box-shadow: 0 0 20px rgba(8, 247, 254, 0.2), inset 0 0 15px rgba(8, 247, 254, 0.1);
+            transform: translateY(-5px);
+        }
+
+        /* Buttons */
+        .cyber-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(8, 247, 254, 0.2);
+        }
+        
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(8, 247, 254, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .cyber-btn:hover {
+            box-shadow: 0 0 25px rgba(8, 247, 254, 0.6);
+            text-shadow: 0 0 8px rgba(8, 247, 254, 0.8);
+        }
+
+        .cyber-btn-alt:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.5);
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+        }
+
+        .cyber-btn-pink:hover {
+            box-shadow: 0 0 25px rgba(254, 83, 187, 0.6);
+            text-shadow: 0 0 8px rgba(254, 83, 187, 0.8);
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Neon text utility */
+        .text-neon-cyan { text-shadow: 0 0 10px rgba(8, 247, 254, 0.7); }
+        .text-neon-green { text-shadow: 0 0 10px rgba(0, 255, 65, 0.7); }
+    </style>
+</head>
+<body class="font-body selection:bg-cyber-cyan selection:text-cyber-black">
+
+    <header class="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+        <canvas id="matrix-bg"></canvas>
+        
+        <div class="relative z-10 flex flex-col items-center px-4 text-center">
+            <div class="glitch-wrapper mb-8">
+                <h1 class="font-cyber glitch-text text-white" data-text="ZSZ BIECZ">ZSZ BIECZ</h1>
+                <p class="font-cyber text-cyber-cyan text-xl md:text-2xl tracking-widest mt-2 uppercase text-neon-cyan">
+                    System Kształcenia v2.0
+                </p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row flex-wrap justify-center gap-4 mt-8 max-w-4xl">
+                <a href="https://zszbiecz.pl/" target="_blank" rel="noopener noreferrer" 
+                   class="cyber-btn font-cyber bg-transparent border-2 border-cyber-cyan text-cyber-cyan px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-cyan hover:text-cyber-black flex items-center justify-center gap-2 group text-sm md:text-base">
+                    <span>Odwiedź naszą szkołę</span>
+                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                </a>
+                
+                <a href="quiz.html" 
+                   class="cyber-btn cyber-btn-pink font-cyber bg-cyber-pink/10 border-2 border-cyber-pink text-cyber-pink px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-pink hover:text-cyber-black flex items-center justify-center gap-2 text-sm md:text-base shadow-[0_0_15px_rgba(254,83,187,0.3)] animate-pulse">
+                    <span>⚡ POZNAJ SWÓJ ZAWÓD ⚡</span>
+                </a>
+
+                <a href="#kierunki" 
+                   class="cyber-btn cyber-btn-alt font-cyber bg-cyber-green/10 border-2 border-cyber-green text-cyber-green px-6 py-4 uppercase font-bold tracking-wider rounded-sm hover:bg-cyber-green hover:text-cyber-black flex items-center justify-center text-sm md:text-base">
+                    Kierunki
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+            <svg class="w-8 h-8 text-cyber-cyan opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+        </div>
+    </header>
+
+    <section id="kierunki" class="py-24 px-4 relative z-10 bg-gradient-to-b from-transparent via-cyber-gray to-cyber-black">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="font-cyber text-4xl md:text-5xl text-center text-white mb-16 reveal text-neon-cyan">
+                KIERUNKI <span class="text-cyber-cyan">KSZTAŁCENIA</span>
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                
+                <div class="reveal">
+                    <div class="flex items-center gap-4 mb-8 border-b border-cyber-cyan/30 pb-4">
+                        <div class="w-12 h-12 bg-cyber-cyan/10 rounded flex items-center justify-center border border-cyber-cyan">
+                            <svg class="w-6 h-6 text-cyber-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <h3 class="font-cyber text-2xl text-cyber-cyan uppercase tracking-wider">Technikum</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="glass-card p-5 rounded-lg relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyber-cyan group-hover:w-2 transition-all"></div>
+                            <h4 class="text-xl font-bold text-white mb-1 pl-4">Technik Informatyk</h4>
+                            <p class="text-gray-400 text-sm pl-4"><span class="text-cyber-cyan">Specjalność:</span> inf. praktyczna: elektronika i sieci światłowodowe</p>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-lg relative overflow-hidden group border-cyber-pink/30 hover:border-cyber-pink/60">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyber-pink group-hover:w-2 transition-all"></div>
+                            <div class="flex justify-between items-start pl-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-white mb-1">Technik Cyberbezpieczeństwa</h4>
+                                </div>
+                                <span class="bg-cyber-pink text-white text-xs font-bold px-2 py-1 rounded animate-pulse shadow-[0_0_10px_#fe53bb]">NOWOŚĆ!</span>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-lg relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyber-cyan group-hover:w-2 transition-all"></div>
+                            <h4 class="text-xl font-bold text-white mb-1 pl-4">Technik Hotelarstwa</h4>
+                            <p class="text-gray-400 text-sm pl-4"><span class="text-cyber-cyan">Specjalność:</span> organizacja eventów i bankietów</p>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-lg relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyber-cyan group-hover:w-2 transition-all"></div>
+                            <h4 class="text-xl font-bold text-white mb-1 pl-4">Technik Żywienia i Usług Gastronomicznych</h4>
+                            <p class="text-gray-400 text-sm pl-4"><span class="text-cyber-cyan">Specjalność:</span> event catering</p>
+                        </div>
+
+                        <div class="glass-card p-5 rounded-lg relative overflow-hidden group">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-cyber-cyan group-hover:w-2 transition-all"></div>
+                            <h4 class="text-xl font-bold text-white mb-1 pl-4">Technik Pojazdów Samochodowych</h4>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-cyber-cyan/5 border border-cyber-cyan/20 p-4 rounded-lg text-sm text-gray-300">
+                        <span class="text-cyber-cyan font-bold mr-2">&lt;SYS_INFO&gt;</span>
+                        Język angielski w zakresie rozszerzonym. Dodatkowe zajęcia rozwijające kompetencje matematyczne i polonistyczne.
+                    </div>
+                </div>
+
+                <div class="reveal" style="transition-delay: 200ms;">
+                    <div class="flex items-center gap-4 mb-8 border-b border-cyber-green/30 pb-4">
+                        <div class="w-12 h-12 bg-cyber-green/10 rounded flex items-center justify-center border border-cyber-green">
+                            <svg class="w-6 h-6 text-cyber-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <h3 class="font-cyber text-2xl text-cyber-green uppercase tracking-wider">Szkoła Branżowa I Stopnia</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Mechanik Pojazdów Samochodowych</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Kucharz</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Cukiernik</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Fryzjer</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Sprzedawca</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60">Magazynier Logistyk</div>
+                        <div class="glass-card p-4 rounded-lg text-white font-medium text-center border-cyber-green/20 hover:border-cyber-green/60 sm:col-span-2">Monter Zabudowy i Robót Wykończeniowych w Budownictwie</div>
+                    </div>
+
+                    <div class="mt-6 bg-cyber-green/5 border border-cyber-green/20 p-4 rounded-lg text-sm text-gray-300">
+                        <span class="text-cyber-green font-bold mr-2">&lt;SYS_INFO&gt;</span>
+                        Trening sylwetkowy w teorii i praktyce włączony w program nauczania.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="erasmus" class="py-20 relative border-y border-blue-600/30 bg-blue-900/10 overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] z-0"></div>
+        
+        <div class="max-w-5xl mx-auto px-4 relative z-10 text-center reveal">
+            <div class="inline-flex items-center justify-center gap-3 mb-6">
+                <div class="text-blue-400 flex gap-1">★ ★ ★</div>
+                <h2 class="font-cyber text-4xl text-blue-400 uppercase font-bold text-shadow-[0_0_15px_#3b82f6]">Erasmus+</h2>
+                <div class="text-blue-400 flex gap-1">★ ★ ★</div>
+            </div>
+            
+            <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+                Inicjujemy globalne połączenia. Zdobądź międzynarodowe doświadczenie i rozszerz swój zawodowy protokół o europejskie standardy.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-xl border-blue-500/30 hover:border-blue-400">
+                    <div class="text-3xl mb-4">💼</div>
+                    <h4 class="font-cyber text-lg text-white mb-2">Staże Zawodowe</h4>
+                    <p class="text-sm text-gray-400">Praktyczne umiejętności na rynkach europejskich.</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl border-blue-500/30 hover:border-blue-400">
+                    <div class="text-3xl mb-4">🌍</div>
+                    <h4 class="font-cyber text-lg text-white mb-2">Praktyki Zagraniczne</h4>
+                    <p class="text-sm text-gray-400">Dedykowane programy w <span class="text-blue-400 font-bold">Grecji</span> i we <span class="text-blue-400 font-bold">Włoszech</span>.</p>
+                </div>
+                <div class="glass-card p-6 rounded-xl border-blue-500/30 hover:border-blue-400">
+                    <div class="text-3xl mb-4">🤝</div>
+                    <h4 class="font-cyber text-lg text-white mb-2">Wymiany Międzynarodowe</h4>
+                    <p class="text-sm text-gray-400">Budowanie sieci kontaktów i kompetencji językowych.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="kursy" class="py-24 px-4 relative z-10 bg-cyber-black">
+        <div class="max-w-6xl mx-auto reveal">
+            <h2 class="font-cyber text-3xl md:text-4xl text-center text-white mb-4">
+                DODATKOWE KURSY I <span class="text-cyber-green text-neon-green">CERTYFIKATY</span>
+            </h2>
+            <p class="text-center text-gray-400 mb-12 max-w-2xl mx-auto">
+                Zdobądź przewagę na rynku pracy instalując dodatkowe moduły kompetencji. Wybierz rozszerzenia dopasowane do Twojego profilu.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Prawo jazdy</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Barman / Barista</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Kasy fiskalne</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-green/30 text-cyber-green rounded-full text-sm hover:bg-cyber-green hover:text-black cursor-default transition-colors">Kuchnie świata / regionalne Polski</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-green/30 text-cyber-green rounded-full text-sm hover:bg-cyber-green hover:text-black cursor-default transition-colors">Zdobnictwo cukiernicze</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-pink/40 text-cyber-pink rounded-full text-sm hover:bg-cyber-pink hover:text-white cursor-default transition-colors">Spawanie MAG i TIG</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-pink/40 text-cyber-pink rounded-full text-sm hover:bg-cyber-pink hover:text-white cursor-default transition-colors">Kierowca wózków jezdniowych</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors shadow-[0_0_8px_rgba(8,247,254,0.2)]">Obsługa obrabiarek CNC</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors shadow-[0_0_8px_rgba(8,247,254,0.2)]">Projektowanie AUTOCAD</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Grafika rastrowa i wektorowa</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Projektowanie i druk 3D</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors font-bold">Programowanie C# i Java</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Arduino</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-cyber-cyan/30 text-cyber-cyan rounded-full text-sm hover:bg-cyber-cyan hover:text-black cursor-default transition-colors">Tworzenie gier komputerowych</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-gray-500 text-gray-300 rounded-full text-sm hover:bg-gray-700 cursor-default transition-colors">Wyjazdy zawodoznawcze</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-gray-500 text-gray-300 rounded-full text-sm hover:bg-gray-700 cursor-default transition-colors">Przygotowanie do egzaminów zawodowych</span>
+                <span class="px-4 py-2 bg-cyber-gray border border-gray-500 text-gray-300 rounded-full text-sm hover:bg-gray-700 cursor-default transition-colors">Zajęcia wyrównawcze (j. ang, mat)</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-8 border-t border-cyber-cyan/20 bg-[#020202] text-center">
+        <p class="text-gray-600 font-cyber text-sm">
+            &copy; 2026 Zespół Szkół Zawodowych im. Świętej Jadwigi Królowej w Bieczu. Wszelkie prawa zastrzeżone.<br>
+            <span class="text-cyber-cyan/50 text-xs">System Online // Status: Operational</span>
+        </p>
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. MATRIX DIGITAL RAIN (Zoptymalizowany)
+        // ==========================================
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        
+        let width, height, columns, drops;
+        const letters = ['Z', 'S', 'Z', 'B', 'I', 'E', 'C', 'Z'];
+        const fontSize = 18;
+
+        function initMatrix() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            columns = Math.floor(width / fontSize) + 1;
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = Math.random() * -100;
+            }
+        }
+
+        window.addEventListener('resize', initMatrix);
+        initMatrix();
+
+        let lastTime = 0;
+        const fps = 35; 
+        const interval = 1000 / fps;
+
+        function drawMatrix(time) {
+            requestAnimationFrame(drawMatrix);
+            
+            const deltaTime = time - lastTime;
+            
+            if (deltaTime > interval) {
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.15)';
+                ctx.fillRect(0, 0, width, height);
+                
+                ctx.font = fontSize + 'px "Rajdhani"';
+                ctx.textAlign = 'center';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const char = letters[Math.floor(Math.random() * letters.length)];
+                    
+                    if (Math.random() > 0.8) {
+                        ctx.fillStyle = '#08f7fe';
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = '#08f7fe';
+                    } else {
+                        ctx.fillStyle = '#00ff41';
+                        ctx.shadowBlur = 5;
+                        ctx.shadowColor = '#00ff41';
+                    }
+                    
+                    const x = i * fontSize + (fontSize/2);
+                    const y = drops[i] * fontSize;
+                    ctx.fillText(char, x, y);
+                    
+                    ctx.shadowBlur = 0;
+
+                    if (y > height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+                
+                lastTime = time - (deltaTime % interval);
+            }
+        }
+        requestAnimationFrame(drawMatrix);
+
+        // ==========================================
+        // 2. SCROLL REVEAL (Intersection Observer API)
+        // ==========================================
+        const revealOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealOnScroll.observe(el);
+        });
+    </script>
+</body>
+</html>
